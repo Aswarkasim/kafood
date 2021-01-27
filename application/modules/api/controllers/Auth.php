@@ -44,24 +44,40 @@ class Auth extends REST_Controller
 
     $this->load->helper('string');
     $data = [
-      'id_user'     => random_string(),
+      'id_user'     => $this->post('id_user'),
       'username'    => $this->post('username'),
       'password'    => sha1($this->post('password')),
       'role'        => 'user'
     ];
-    $insert  = $this->db->insert('tbl_user', $data);
 
-    if ($insert) {
-      $this->response([
-        'status'    => 'success',
-        'message'   => 'Sukses menambahkan data',
-        'error'     => false,
-        'user'      => $data
-      ], REST_Controller::HTTP_OK);
+
+    $username = $data['username'];
+
+    $this->db->where('username', $username);
+    $userCek = $this->db->select('*')->from('tbl_user');
+
+    if ($userCek == null) {
+
+      $insert  = $this->db->insert('tbl_user', $data);
+
+      if ($insert) {
+        $this->response([
+          'status'    => 'success',
+          'message'   => 'Sukses menambahkan data',
+          'error'     => false,
+          'user'      => $data
+        ], REST_Controller::HTTP_OK);
+      } else {
+        $this->response([
+          'status'  => 'failed',
+          'message'   => 'Gagal menambahkan data',
+          'error'   => true
+        ], REST_Controller::HTTP_INTERNAL_SERVER_ERROR);
+      }
     } else {
       $this->response([
         'status'  => 'failed',
-        'message'   => 'Gagal menambahkan data',
+        'message'   => 'Nama user telah ada',
         'error'   => true
       ], REST_Controller::HTTP_INTERNAL_SERVER_ERROR);
     }
