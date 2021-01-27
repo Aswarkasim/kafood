@@ -43,6 +43,7 @@ class Auth extends REST_Controller
   {
 
     $this->load->helper('string');
+    $this->load->model('api/Api_model', 'API');
     $data = [
       'id_user'     => $this->post('id_user'),
       'username'    => $this->post('username'),
@@ -50,11 +51,7 @@ class Auth extends REST_Controller
       'role'        => 'user'
     ];
 
-
-    $username = $data['username'];
-
-    $this->db->where('username', $username);
-    $userCek = $this->db->select('*')->from('tbl_user');
+    $userCek = $this->API->cekUsername($data['username']);
 
     if ($userCek == null) {
 
